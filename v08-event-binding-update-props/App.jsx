@@ -1,15 +1,29 @@
 
 import React from "./core/React.js";
 
-function Counter(props) {
+let count = 10;
+let props = {id :"1213131"};
+function Counter() {
+  // update props - 后续会用useState来触发props更新
   function handleClick() {
     console.log("click");
+    count++;
+    props = {};
+    React.update();
   }
   
   return (
-    <div>
-      count: {props.num}
+    <div {...props}>
+      count: {count}
       <button onClick={handleClick}>click</button>
+    </div>
+  )
+}
+
+function CounterContainer() {
+  return (
+    <div>
+      <Counter num={12}></Counter>
     </div>
   )
 }
@@ -20,8 +34,7 @@ function App(params) {
   return (
     <div>
       mini-react
-      <Counter num={10}></Counter>
-      <Counter num={20}></Counter>
+      <CounterContainer></CounterContainer>
     </div>
   )
 }
