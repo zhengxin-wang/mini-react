@@ -24,7 +24,7 @@ function createElement(type, props, ...children) {
 
 // 对于workLoop来讲，即将执行的任务（即将处理的vdom节点）
 let nextWorkOfUnit = null;
-let root = null;
+let wipRoot = null;
 
 
 function workLoop(deadline) {
@@ -35,7 +35,7 @@ function workLoop(deadline) {
     shouldYield = deadline.timeRemaining() < 1;
   }
   // 统一提交根节点：只在fiber tree 链表结束（下个元素为空）的时候append app到root节点
-  if (!nextWorkOfUnit && root) {
+  if (!nextWorkOfUnit && wipRoot) {
     commitRoot()
   }
 
@@ -44,9 +44,9 @@ function workLoop(deadline) {
 
 let currentRoot = null;
 function commitRoot() {
-  commitWork(root.child);
-  currentRoot = root; // 保存当前的fiber树， 给下次用来做diff
-  root = null
+  commitWork(wipRoot.child);
+  currentRoot = wipRoot; // 保存当前的fiber树， 给下次用来做diff
+  wipRoot = null
 }
 
 function commitWork(fiber) {
@@ -85,22 +85,22 @@ function commitWork(fiber) {
 function render(el, container) {
   // 将vdom的根节点作为children，创建到 root container 上
   // 这是第一个入队的任务
-  nextWorkOfUnit = {
+  wipRoot = {
     dom: container,  // root container dom是dom树的根节点
     props: {
       children: [el],
     },
   };
-  root = nextWorkOfUnit;
+  nextWorkOfUnit = wipRoot;
 }
 
 function update() {
-  nextWorkOfUnit = {
+  wipRoot = {
     dom: currentRoot.dom,  // root container dom是dom树的根节点
     props: currentRoot.props,
     alternate: currentRoot,
   };
-  root = nextWorkOfUnit;
+  nextWorkOfUnit = wipRoot;
 }
 
 
@@ -137,7 +137,7 @@ function updateProps(dom, nextProps, prevProps) {
   }
 
 // 处理节点之间的关系
-function initChildren(fiber, children) {
+function reconcileChildren(fiber, children) {  // reconcile 包含了init和update
       let oldFiber = fiber.alternate?.child;
 
       let prevChild = null;
@@ -189,7 +189,7 @@ function initChildren(fiber, children) {
 function updateFunctionComponent(fiber) {
       // 如果是函数组件，不直接为其append dom
       const children = [fiber.type(fiber.props)]
-      initChildren(fiber, children)
+      reconcileChildren(fiber, children)
     }
 
 function updateHostComponent(fiber) {
@@ -200,7 +200,7 @@ function updateHostComponent(fiber) {
         updateProps(dom, fiber.props, {});
       }
       const children = fiber.props.children;
-      initChildren(fiber, children);
+      reconcileChildren(fiber, children);
     }
 
 function performWorkOfUnit(fiber) {
