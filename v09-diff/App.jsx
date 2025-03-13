@@ -2,8 +2,12 @@ import React from "./core/React.js"
 
 let showBar = false
 function Counter() {
-  const foo = <div>foo</div>
-  const bar = <p>bar</p>
+  function Foo() {
+    return <div>foo</div>
+  }
+  function Bar() {
+    return <p>bar</p>
+  }
   function handleShowBar() {
     showBar = !showBar
     React.update()
@@ -11,7 +15,7 @@ function Counter() {
   return (
     <div>
       counter
-      <div>{showBar ? bar : foo}</div>
+      <div>{showBar ? <Bar></Bar> : <Foo></Foo>}</div>
       <button onClick={handleShowBar}>showBar</button>
     </div>
   )

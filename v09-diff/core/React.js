@@ -53,7 +53,17 @@ function commitRoot() {
 }
 
 function commitDeletion(fiber) {
-  fiber?.parent.dom.removeChild(fiber.dom)
+  // 网上实际存在dom的parent节点
+  if (fiber.dom) {
+    let fiberParent = fiber.parent;
+    while (!fiberParent.dom) {
+      fiberParent = fiberParent.parent
+    }
+    fiberParent.dom.removeChild(fiber.dom)
+  } else {
+    // 跳过函数组件本身，往下找实际存在dom的节点
+    commitDeletion(fiber.child)
+  }
 }
 
 function commitWork(fiber) {
@@ -178,7 +188,9 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
         effectTag: "placement",  // 标记一下，这个fiber节点是新建的
       };
 
-      deletions.push(oldFiber);
+      if (oldFiber) {
+        deletions.push(oldFiber);
+      }
     }
 
     // 本次的fiber树会移动到sibling节点，oldFiber 也移动到兄弟节点。保证diff的时候能找到对应的节点
