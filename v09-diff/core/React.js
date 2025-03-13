@@ -14,10 +14,12 @@ function createElement(type, props, ...children) {
     props: {
       ...props,
       children: children.map((child) => {
-        // const isTextNode = typeof child === "string"
-        const isTextNode = typeof child === "string" || typeof child === "number"
-        return isTextNode ? createTextNode(child) : child
-      }),
+        if (child) {
+          // const isTextNode = typeof child === "string"
+          const isTextNode = typeof child === "string" || typeof child === "number"
+          return isTextNode ? createTextNode(child) : child
+        }
+      }).filter(child => child),
     },
   };
 }
