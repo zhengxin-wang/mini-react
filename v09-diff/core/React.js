@@ -205,6 +205,11 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
     }
     prevChild = newFiber;
   });
+
+  while (oldFiber) {
+    deletions.push(oldFiber);
+    oldFiber = oldFiber.sibling;
+  }
 }
 
 function updateFunctionComponent(fiber) {
