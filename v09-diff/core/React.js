@@ -43,10 +43,17 @@ function workLoop(deadline) {
 }
 
 let currentRoot = null;
+let deletions = [] // 需要删除的节点集合
 function commitRoot() {
+  deletions.forEach(commitDeletion)
   commitWork(wipRoot.child);
   currentRoot = wipRoot; // 保存当前的fiber树， 给下次用来做diff
-  wipRoot = null
+  wipRoot = null;
+  deletions = [];
+}
+
+function commitDeletion(fiber) {
+  fiber?.parent.dom.removeChild(fiber.dom)
 }
 
 function commitWork(fiber) {
@@ -170,6 +177,8 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
         dom: null,
         effectTag: "placement",  // 标记一下，这个fiber节点是新建的
       };
+
+      deletions.push(oldFiber);
     }
 
     // 本次的fiber树会移动到sibling节点，oldFiber 也移动到兄弟节点。保证diff的时候能找到对应的节点
