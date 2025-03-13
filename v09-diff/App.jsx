@@ -10,7 +10,7 @@ function Counter() {
   return (
     <div>
       counter
-      <div>{showBar && bar}</div>
+      {showBar && bar}
       <button onClick={handleShowBar}>showBar</button>
     </div>
   )

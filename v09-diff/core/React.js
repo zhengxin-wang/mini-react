@@ -14,12 +14,9 @@ function createElement(type, props, ...children) {
     props: {
       ...props,
       children: children.map((child) => {
-        if (child) {
-          // const isTextNode = typeof child === "string"
-          const isTextNode = typeof child === "string" || typeof child === "number"
-          return isTextNode ? createTextNode(child) : child
-        }
-      }).filter(child => child),
+        const isTextNode = typeof child === "string" || typeof child === "number"
+        return isTextNode ? createTextNode(child) : child
+      }),
     },
   };
 }
@@ -161,9 +158,10 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
 
   let prevChild = null;
 
-  let newFiber;
   children.forEach((child, index) => {
 
+    let newFiber = null;
+    console.log(child)
     const isSameType = child && oldFiber && child.type === oldFiber.type;;
 
     if (isSameType) {
@@ -179,16 +177,18 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
         alternate: oldFiber,
       };
     } else {
-      //create
-      newFiber = {
-        type: child.type,
-        props: child.props,
-        child: null,
-        parent: fiber,
-        sibling: null,
-        dom: null,
-        effectTag: "placement",  // 标记一下，这个fiber节点是新建的
-      };
+      if (child) {
+        //create
+        newFiber = {
+          type: child.type,
+          props: child.props,
+          child: null,
+          parent: fiber,
+          sibling: null,
+          dom: null,
+          effectTag: "placement",  // 标记一下，这个fiber节点是新建的
+        };
+      }
 
       if (oldFiber) {
         deletions.push(oldFiber);
@@ -205,7 +205,9 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
     } else {
       prevChild.sibling = newFiber;
     }
-    prevChild = newFiber;
+    if (newFiber) {
+      prevChild = newFiber;
+    }
   });
 
   while (oldFiber) {
