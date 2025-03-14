@@ -3,9 +3,11 @@ import React from "./core/React.js"
 let countFoo1 = 1
 function Foo() {
   console.log("Foo return ")
+
+  const update = React.update();
   function handleClick() {
     countFoo1++
-    React.update()
+    update()
   }
   return (
     <div>
@@ -17,9 +19,11 @@ function Foo() {
 let countBar = 1
 function Bar() {
   console.log("Bar return ")
+
+  const update = React.update();
   function handleClick() {
     countBar++
-    React.update()
+    update()
   }
   return (
     <div>
@@ -31,9 +35,11 @@ function Bar() {
 let countApp = 1
 function App() {
   console.log("App return ")
+
+  const update = React.update();
   function handleClick() {
     countApp++
-    React.update()
+    update()
   }
   return (
     <div>

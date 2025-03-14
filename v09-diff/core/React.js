@@ -24,12 +24,19 @@ function createElement(type, props, ...children) {
 // 对于workLoop来讲，即将执行的任务（即将处理的vdom节点）
 let nextWorkOfUnit = null;
 let wipRoot = null;
+let wipFiber = null;
 
 
 function workLoop(deadline) {
   let shouldYield = false;
   while (!shouldYield && nextWorkOfUnit) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
+
+    // 如果wipRoot(要更新的函数组件)的兄弟就是下一个work
+    //那就代表当前函数组件已经渲染完成了
+    if (wipRoot?.sibling?.type === nextWorkOfUnit?.type) {
+      nextWorkOfUnit = undefined;
+    }
 
     shouldYield = deadline.timeRemaining() < 1;
   }
@@ -52,7 +59,7 @@ function commitRoot() {
 }
 
 function commitDeletion(fiber) {
-  // 网上实际存在dom的parent节点
+  // 网上找上实际存在dom的parent节点
   if (fiber.dom) {
     let fiberParent = fiber.parent;
     while (!fiberParent.dom) {
@@ -81,15 +88,11 @@ function commitWork(fiber) {
   }
 
   // vdom中的函数组件节点本身并没有对应的dom节点，append 会导致null被append到dom树上
-  if (fiber.dom) {
-    fiberParent.dom.append(fiber.dom)
-  }
-
-  if (fiber.effectTag === "update" && fiber.dom) {
+  if (fiber.effectTag === "update") {
     // 提供新的和旧的props用来做diff
     updateProps(fiber.dom, fiber.props, fiber.alternate?.props)
   } else if (fiber.effectTag === "placement" && fiber.dom) {
-    fiberParent.dom.append(fiber.dom)
+      fiberParent.dom.append(fiber.dom)
   }
 
   commitWork(fiber.child)
@@ -111,12 +114,15 @@ function render(el, container) {
 }
 
 function update() {
-  wipRoot = {
-    dom: currentRoot.dom,  // root container dom是dom树的根节点
-    props: currentRoot.props,
-    alternate: currentRoot,
-  };
-  nextWorkOfUnit = wipRoot;
+  // 函数组件在运行此HOC的时候顺便记录当前fiber节点wipFiber
+  let currentFiber = wipFiber;
+  return () => {
+    wipRoot = {
+      ...currentFiber,
+      alternate: currentFiber,
+    };
+    nextWorkOfUnit = wipRoot;
+  }
 }
 
 
@@ -161,7 +167,6 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
   children.forEach((child, index) => {
 
     let newFiber = null;
-    console.log(child)
     const isSameType = child && oldFiber && child.type === oldFiber.type;;
 
     if (isSameType) {
@@ -217,6 +222,7 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
 }
 
 function updateFunctionComponent(fiber) {
+  wipFiber = fiber;
   // 如果是函数组件，不直接为其append dom
   const children = [fiber.type(fiber.props)]
   reconcileChildren(fiber, children)
