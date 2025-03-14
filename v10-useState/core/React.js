@@ -92,7 +92,7 @@ function commitWork(fiber) {
     // 提供新的和旧的props用来做diff
     updateProps(fiber.dom, fiber.props, fiber.alternate?.props)
   } else if (fiber.effectTag === "placement" && fiber.dom) {
-      fiberParent.dom.append(fiber.dom)
+    fiberParent.dom.append(fiber.dom)
   }
 
   commitWork(fiber.child)
@@ -125,8 +125,27 @@ function render(el, container) {
 //   }
 // }
 
-function useState(initialValue) {
-  return [initialValue, () => {}];
+function useState(initial) {
+  let currentFiber = wipFiber;
+  let oldHook = currentFiber.alternate?.stateHook
+
+  const stateHook = {
+    state: oldHook ? oldHook.state : initial,
+  }
+
+  currentFiber.stateHook = stateHook;
+
+  const setState = (action) => {
+    stateHook.state = action(stateHook.state)
+    console.log(stateHook.state);
+    wipRoot = {
+      ...currentFiber,
+      alternate: currentFiber,
+    };
+    nextWorkOfUnit = wipRoot;
+  }
+
+  return [stateHook.state, setState];
 }
 
 
