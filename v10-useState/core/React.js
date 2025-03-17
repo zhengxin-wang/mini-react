@@ -125,19 +125,25 @@ function render(el, container) {
 //   }
 // }
 
+let stateHooks;
+let stateHookIndex;
 function useState(initial) {
   let currentFiber = wipFiber;
-  let oldHook = currentFiber.alternate?.stateHook
+  // 根据index找到对应的stateHook
+  let oldHook = currentFiber.alternate?.stateHooks[stateHookIndex];
 
+  // 存储本次的state供setState使用
   const stateHook = {
     state: oldHook ? oldHook.state : initial,
   }
+  stateHooks.push(stateHook);
+  stateHookIndex++;
 
-  currentFiber.stateHook = stateHook;
+  //刷新hooks数组
+  currentFiber.stateHooks = stateHooks;
 
   const setState = (action) => {
-    stateHook.state = action(stateHook.state)
-    console.log(stateHook.state);
+    stateHook.state = action(stateHook.state);
     wipRoot = {
       ...currentFiber,
       alternate: currentFiber,
@@ -245,6 +251,8 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
 }
 
 function updateFunctionComponent(fiber) {
+  stateHooks = [];
+  stateHookIndex = 0;
   wipFiber = fiber;
   // 如果是函数组件，不直接为其append dom
   const children = [fiber.type(fiber.props)]
