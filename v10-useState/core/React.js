@@ -30,6 +30,7 @@ let wipFiber = null;
 function workLoop(deadline) {
   let shouldYield = false;
   while (!shouldYield && nextWorkOfUnit) {
+    console.log("get nextWorkOfUnit", nextWorkOfUnit)
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
 
     // 如果wipRoot(要更新的函数组件)的兄弟就是下一个work
@@ -154,8 +155,8 @@ function useState(initial) {
     const eagerState = typeof action === "function" ? action(stateHook.state) : action
     if (eagerState === stateHook.state) return
 
-    stateHook.queue.push(typeof action === "function" ? action : () => action)
-    // stateHook.state = action(stateHook.state)
+    // stateHook.queue.push(typeof action === "function" ? action : () => action)
+    stateHook.state = eagerState;
 
     wipRoot = {
       ...currentFiber,
@@ -163,6 +164,7 @@ function useState(initial) {
     }
 
     nextWorkOfUnit = wipRoot
+    console.log("eagerState", eagerState, "set nextWorkOfUnit",  nextWorkOfUnit)
   }
 
   return [stateHook.state, setState];
@@ -289,6 +291,7 @@ function performWorkOfUnit(fiber) {
 
   if (isFunctionComponent) {
     updateFunctionComponent(fiber)
+    console.log("peformUnitOfWork", fiber.type.name)
   } else {
     updateHostComponent(fiber)
   }
