@@ -135,7 +135,14 @@ function useState(initial) {
   // 存储本次的state供setState使用
   const stateHook = {
     state: oldHook ? oldHook.state : initial,
+    queue: oldHook ? oldHook.queue : [],
   }
+  // 调用action
+  stateHook.queue.forEach(action => {
+    stateHook.state = action(stateHook.state)
+  })
+  stateHook.queue = [];
+
   stateHooks.push(stateHook);
   stateHookIndex++;
 
@@ -143,7 +150,9 @@ function useState(initial) {
   currentFiber.stateHooks = stateHooks;
 
   const setState = (action) => {
-    stateHook.state = action(stateHook.state);
+    stateHook.queue.push(typeof action === "function" ? action : () => action)
+    // stateHook.state = action(stateHook.state)
+
     wipRoot = {
       ...currentFiber,
       alternate: currentFiber,

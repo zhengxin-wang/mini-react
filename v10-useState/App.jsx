@@ -4,6 +4,8 @@ function Foo() {
   const [bar, setBar] = React.useState("bar");
   function handleClick() {
     setCount(pre => pre + 2)
+    setCount(pre => pre + 2)
+    setCount(pre => pre + 2)
     setBar(pre => pre + "bar");
   }
   return (
