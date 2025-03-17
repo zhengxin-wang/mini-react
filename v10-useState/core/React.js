@@ -150,14 +150,19 @@ function useState(initial) {
   currentFiber.stateHooks = stateHooks;
 
   const setState = (action) => {
+    // 处理值一样的情况
+    const eagerState = typeof action === "function" ? action(stateHook.state) : action
+    if (eagerState === stateHook.state) return
+
     stateHook.queue.push(typeof action === "function" ? action : () => action)
     // stateHook.state = action(stateHook.state)
 
     wipRoot = {
       ...currentFiber,
       alternate: currentFiber,
-    };
-    nextWorkOfUnit = wipRoot;
+    }
+
+    nextWorkOfUnit = wipRoot
   }
 
   return [stateHook.state, setState];
