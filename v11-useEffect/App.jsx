@@ -12,6 +12,13 @@ function Foo() {
     setBar(() => "bar")
   }
   React.useEffect(() => {
+    console.log("init every time")
+    return () => {
+      console.log("cleanUp every time")
+    }
+  })
+
+  React.useEffect(() => {
     console.log("init")
     return () => {
       console.log("cleanUp 0")

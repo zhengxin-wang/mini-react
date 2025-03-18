@@ -67,12 +67,14 @@ function commitEffectHooks() {
       });
     } else {
       fiber.effectHooks?.forEach((newHook, index) => {
-        if (newHook.deps.length > 0) {
+        if (newHook.deps?.length > 0) {
           const oldDeps = fiber.alternate.effectHooks[index]?.deps
           const hasChanged = newHook?.deps.some((dep, i) => dep !== oldDeps[i])
           if (hasChanged) {
             newHook.cleanUp = newHook.callback();    // 将返回的函数赋值
-        }
+          }
+        } else if (newHook.deps === undefined) {
+          newHook.cleanUp = newHook.callback();    // 将返回的函数赋值
         }
       })
     }
@@ -83,7 +85,7 @@ function commitEffectHooks() {
     if (!fiber) return
 
     fiber.alternate?.effectHooks?.forEach((hook) => {
-      if (hook.deps.length > 0) {
+      if (hook.deps?.length > 0 || hook.deps === undefined) {
         hook?.cleanUp && hook?.cleanUp()
       }
     })
