@@ -60,7 +60,17 @@ function commitRoot() {
 function commitEffectHooks() {
   function run(fiber) {
     if (!fiber) return
-    fiber.effectHook?.callback()
+
+    if (!fiber.alternate) {
+      fiber.effectHook?.callback()
+    } else {
+      const oldDeps = fiber.alternate?.effectHook?.deps
+      const newDeps = fiber?.effectHook?.deps || []
+      const hasChanged = newDeps.some((dep, i) => dep !== oldDeps[i])
+      if (hasChanged) {
+      fiber.effectHook?.callback()
+      }
+    }
     run(fiber.child)
     run(fiber.sibling)
   }

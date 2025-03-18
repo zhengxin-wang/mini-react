@@ -12,9 +12,13 @@ function Foo() {
     setBar(() => "bar");
   }
  
+  // React.useEffect(() => {
+  //   console.log("init");
+  // }, []);
+
   React.useEffect(() => {
-    console.log("init");
-  }, []);
+    console.log("update");
+  }, [bar]);
  
   return (
     <div>
