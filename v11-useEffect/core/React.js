@@ -48,14 +48,23 @@ function workLoop(deadline) {
   requestIdleCallback(workLoop);
 }
 
-let currentRoot = null;
 let deletions = [] // 需要删除的节点集合
 function commitRoot() {
   deletions.forEach(commitDeletion)
   commitWork(wipRoot.child);
-  currentRoot = wipRoot; // 保存当前的fiber树， 给下次用来做diff
+  commitEffectHooks();
   wipRoot = null;
   deletions = [];
+}
+
+function commitEffectHooks() {
+  function run(fiber) {
+    if (!fiber) return
+    fiber.effectHook?.callback()
+    run(fiber.child)
+    run(fiber.sibling)
+  }
+  run(wipRoot)
 }
 
 function commitDeletion(fiber) {
@@ -302,6 +311,12 @@ function performWorkOfUnit(fiber) {
 requestIdleCallback(workLoop);
 
 function useEffect(callback, deps) {
+  const effectHook = {
+    callback,
+    deps,
+  }
+
+  wipFiber.effectHook = effectHook;
 }
 
 const React = {

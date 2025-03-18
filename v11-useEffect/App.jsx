@@ -5,7 +5,6 @@ import React from "./core/React.js";
 // 调用时机是在 React 完成对 DOM 的渲染之后，并且浏览器完成绘制之前。
  
 function Foo() {
-  console.log("re foo");
   const [count, setCount] = React.useState(10);
   const [bar, setBar] = React.useState("bar");
   function handleClick() {
@@ -16,18 +15,6 @@ function Foo() {
   React.useEffect(() => {
     console.log("init");
   }, []);
- 
-  // React.useEffect(() => {
-  //   console.log("update", count);
-  //   // cleanup
-  //   return ()=>{
- 
-  //   }
-  // }, [count]);
- 
-  // useEffect(() => {
-  //   console.log("update");
-  // }, [count]);
  
   return (
     <div>
