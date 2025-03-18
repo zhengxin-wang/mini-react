@@ -53,9 +53,9 @@ function Todos() {
         <button onClick={handleSave}>save</button>
       </div>
       <ul>
-        {items.length}
+        {/* {items.length} */}
         {/* {items.map((item, index) => item.text)} */}
-        {/* {items.map((item, index) => {
+        {items.map((item, index) => {
           return (
             <li key={index}>
               <span style={{textDecoration: item.done ? "line-through" : "none"}}>{item.text}</span>
@@ -63,7 +63,7 @@ function Todos() {
               <button onClick={handleDone(index)}>done</button>
             </li>
           )
-        })} */}
+        })}
       </ul>
     </div>
   )

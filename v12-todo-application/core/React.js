@@ -8,15 +8,26 @@ function createTextNode(text) {
   };
 }
 
+function createChildNode (child) {
+  const isTextNode = typeof child === "string" || typeof child === "number"
+  console.log(child, isTextNode)
+  return isTextNode ? createTextNode(child) : child
+}
+
 function createElement(type, props, ...children) {
   return {
     type,
     props: {
       ...props,
-      children: children.map((child) => {
-        const isTextNode = typeof child === "string" || typeof child === "number"
-        return isTextNode ? createTextNode(child) : child
-      }),
+      children: children.reduce((result, child) => {
+        const isArray = Array.isArray(child) && child.length > 0
+        if (isArray) {
+          child.forEach((c) => result.push(createChildNode(c)))
+        } else {
+          result.push(createChildNode(child))
+        }
+        return result;
+      }, []),
     },
   };
 }
