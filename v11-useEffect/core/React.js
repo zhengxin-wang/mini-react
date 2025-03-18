@@ -62,14 +62,15 @@ function commitEffectHooks() {
     if (!fiber) return
 
     if (!fiber.alternate) {
-      fiber.effectHook?.callback()
+      fiber.effectHooks?.forEach(hook => hook?.callback());
     } else {
-      const oldDeps = fiber.alternate?.effectHook?.deps
-      const newDeps = fiber?.effectHook?.deps || []
-      const hasChanged = newDeps.some((dep, i) => dep !== oldDeps[i])
-      if (hasChanged) {
-      fiber.effectHook?.callback()
-      }
+      fiber.effectHooks?.forEach((newHook, index) => {
+        const oldDeps = fiber.alternate.effectHooks[index]?.deps
+        const hasChanged = newHook?.deps.some((dep, i) => dep !== oldDeps[i])
+        if (hasChanged) {
+          newHook.callback();
+        }
+      })
     }
     run(fiber.child)
     run(fiber.sibling)
@@ -130,6 +131,17 @@ function render(el, container) {
     },
   };
   nextWorkOfUnit = wipRoot;
+}
+
+let effectHooks;
+function useEffect(callback, deps) {
+  const effectHook = {
+    callback,
+    deps,
+  }
+  effectHooks.push(effectHook);
+
+  wipFiber.effectHooks = effectHooks;
 }
 
 let stateHooks;
@@ -274,6 +286,7 @@ function reconcileChildren(fiber, children) {  // reconcile 包含了init和upda
 function updateFunctionComponent(fiber) {
   stateHooks = [];
   stateHookIndex = 0;
+  effectHooks = [];
   wipFiber = fiber;
   // 如果是函数组件，不直接为其append dom
   const children = [fiber.type(fiber.props)]
@@ -320,14 +333,6 @@ function performWorkOfUnit(fiber) {
 
 requestIdleCallback(workLoop);
 
-function useEffect(callback, deps) {
-  const effectHook = {
-    callback,
-    deps,
-  }
-
-  wipFiber.effectHook = effectHook;
-}
 
 const React = {
   useEffect,
