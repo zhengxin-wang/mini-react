@@ -10,7 +10,6 @@ function createTextNode(text) {
 
 function createChildNode (child) {
   const isTextNode = typeof child === "string" || typeof child === "number"
-  console.log(child, isTextNode)
   return isTextNode ? createTextNode(child) : child
 }
 

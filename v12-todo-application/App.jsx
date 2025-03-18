@@ -12,6 +12,19 @@ function Todos() {
   const [inputValue, setInputValue] = React.useState("");
   const [items, setItems] = React.useState(loadItems());
 
+  const [filter, setFilter] = React.useState("all");
+
+  const filteredItems = items.filter(item => {
+    if (filter === "done") {
+      return item.done
+    }
+    if (filter === "active") {
+      return !item.done
+    }
+
+    return true
+  })
+
   function handleInput(e) {
     setInputValue(e.target.value)
   }
@@ -37,8 +50,21 @@ function Todos() {
     }
   }
 
+  function handleActive(index) {
+    return function () {
+      const newItems = [...items]
+      newItems[index].done = false
+      setItems(newItems)
+    }
+  }
+
   function handleSave() {
     localStorage.setItem("items", JSON.stringify(items))
+  }
+
+  function handleFilter(e) {
+    console.log("checked", e.target.value)
+    setFilter(e.target.value)
   }
 
   React.useEffect(() => {
@@ -52,15 +78,28 @@ function Todos() {
       <div>
         <button onClick={handleSave}>save</button>
       </div>
+      <div>
+        <input type="radio" id="all" name="filter" value="all" onChange={handleFilter} checked/>
+        <label for="all">all</label>
+        <input type="radio" id="done" name="filter" value="done" onChange={handleFilter}/>
+        <label for="done">done</label>
+        <input type="radio" id="active" name="filter" value="active" onChange={handleFilter}/>
+        <label for="active">active</label>
+      </div>
       <ul>
         {/* {items.length} */}
         {/* {items.map((item, index) => item.text)} */}
-        {items.map((item, index) => {
+        {filteredItems.map((item, index) => {
           return (
             <li key={index}>
-              <span style={{textDecoration: item.done ? "line-through" : "none"}}>{item.text}</span>
+              {/* <span style={{textDecoration: item.done ? "line-through" : "none"}}>{item.text}</span> */}
+              <span style={{textDecoration: "line-through"}}>{item.text}</span>
               <button onClick={handleRemove(index)}>remove</button>
-              <button onClick={handleDone(index)}>done</button>
+              {
+                item.done ? 
+                  <button onClick={handleActive(index)}>active</button>:
+                  <button onClick={handleDone(index)}>done</button>
+              }
             </li>
           )
         })}
