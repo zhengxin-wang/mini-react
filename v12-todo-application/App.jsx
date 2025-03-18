@@ -87,13 +87,10 @@ function Todos() {
         <label for="active">active</label>
       </div>
       <ul>
-        {/* {items.length} */}
-        {/* {items.map((item, index) => item.text)} */}
         {filteredItems.map((item, index) => {
           return (
             <li key={index}>
-              {/* <span style={{textDecoration: item.done ? "line-through" : "none"}}>{item.text}</span> */}
-              <span style={{textDecoration: "line-through"}}>{item.text}</span>
+              <span style={{textDecoration: item.done ? "line-through" : "none"}}>{item.text}</span>
               <button onClick={handleRemove(index)}>remove</button>
               {
                 item.done ? 

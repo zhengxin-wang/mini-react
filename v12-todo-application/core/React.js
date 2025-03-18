@@ -241,12 +241,20 @@ function updateProps(dom, nextProps, prevProps) {
           const eventType = key.slice(2).toLowerCase();
           dom.removeEventListener(eventType, prevProps[key]);
           dom.addEventListener(eventType, nextProps[key]);
+        } else if (key==="style"){
+          dom[key] = objectToCssString(nextProps[key]);
         } else {
           dom[key] = nextProps[key];
         }
       }
     }
   });
+}
+
+function objectToCssString(obj) {
+  return Object.keys(obj).map(key => {
+    return `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${obj[key]}`;
+  }).join(";")
 }
 
 // 处理节点之间的关系
