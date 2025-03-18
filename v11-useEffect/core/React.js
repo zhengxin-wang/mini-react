@@ -65,10 +65,12 @@ function commitEffectHooks() {
       fiber.effectHooks?.forEach(hook => hook?.callback());
     } else {
       fiber.effectHooks?.forEach((newHook, index) => {
-        const oldDeps = fiber.alternate.effectHooks[index]?.deps
-        const hasChanged = newHook?.deps.some((dep, i) => dep !== oldDeps[i])
-        if (hasChanged) {
-          newHook.callback();
+        if (newHook.deps.length > 0) {
+          const oldDeps = fiber.alternate.effectHooks[index]?.deps
+          const hasChanged = newHook?.deps.some((dep, i) => dep !== oldDeps[i])
+          if (hasChanged) {
+            newHook.callback();
+          }
         }
       })
     }
