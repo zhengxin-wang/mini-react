@@ -3,7 +3,7 @@ import React from "./core/React.js";
 function loadItems() {
   const items = localStorage.getItem("items")
   if (items) {
-    return(JSON.parse(items))
+    return (JSON.parse(items))
   }
   return []
 }
@@ -25,14 +25,17 @@ function Todos() {
       return true
     })
   }, [items, filter])
-  
+
+  const doneItems = React.useMemo(() => {
+    return items.filter(item => item.done)
+  }, [items]);
 
   function handleInput(e) {
     setInputValue(e.target.value)
   }
 
   function handleAdd() {
-    setItems([...items, {text: inputValue}])
+    setItems([...items, { text: inputValue }])
     setInputValue("")
   }
 
@@ -81,22 +84,22 @@ function Todos() {
         <button onClick={handleSave}>save</button>
       </div>
       <div>
-        <input type="radio" id="all" name="filter" value="all" onChange={handleFilter} checked/>
+        <input type="radio" id="all" name="filter" value="all" onChange={handleFilter} checked />
         <label for="all">all</label>
-        <input type="radio" id="done" name="filter" value="done" onChange={handleFilter}/>
+        <input type="radio" id="done" name="filter" value="done" onChange={handleFilter} />
         <label for="done">done</label>
-        <input type="radio" id="active" name="filter" value="active" onChange={handleFilter}/>
+        <input type="radio" id="active" name="filter" value="active" onChange={handleFilter} />
         <label for="active">active</label>
       </div>
       <ul>
         {filteredItems.map((item, index) => {
           return (
             <li key={index}>
-              <span style={{textDecoration: item.done ? "line-through" : "none"}}>{item.text}</span>
+              <span style={{ textDecoration: item.done ? "line-through" : "none" }}>{item.text}</span>
               <button onClick={handleRemove(index)}>remove</button>
               {
-                item.done ? 
-                  <button onClick={handleActive(index)}>active</button>:
+                item.done ?
+                  <button onClick={handleActive(index)}>active</button> :
                   <button onClick={handleDone(index)}>done</button>
               }
             </li>

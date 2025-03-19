@@ -173,6 +173,8 @@ function useEffect(callback, deps) {
   wipFiber.effectHooks = effectHooks;
 }
 
+let memoHooks;
+let memoHookIndex;
 function useMemo(callback, deps) {
   const memoHook = {
     callback,
@@ -181,7 +183,7 @@ function useMemo(callback, deps) {
   }
 
   let cachedValue;
-  const oldHook = wipFiber.alternate?.memoHook;
+  const oldHook = wipFiber.alternate?.memoHooks[memoHookIndex];
   const hasChanged = memoHook.deps === undefined || memoHook.deps.some((dep, i) => dep !== oldHook?.deps[i])
   if (!hasChanged) {
     console.log("useMemo: 未变化");
@@ -190,9 +192,12 @@ function useMemo(callback, deps) {
     console.log("useMemo: 变化");
     cachedValue = memoHook.callback();
   }
+  console.log("cachedValue", cachedValue);
   memoHook.cachedValue = cachedValue;
+  memoHooks.push(memoHook);
+  memoHookIndex++;
 
-  wipFiber.memoHook = memoHook;
+  wipFiber.memoHooks = memoHooks;
   return cachedValue;
 }
 
@@ -347,6 +352,9 @@ function updateFunctionComponent(fiber) {
   stateHooks = [];
   stateHookIndex = 0;
   effectHooks = [];
+
+  memoHooks = [];
+  memoHookIndex = 0;
   wipFiber = fiber;
   // 如果是函数组件，不直接为其append dom
   const children = [fiber.type(fiber.props)]
