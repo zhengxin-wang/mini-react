@@ -11,19 +11,21 @@ function loadItems() {
 function Todos() {
   const [inputValue, setInputValue] = React.useState("");
   const [items, setItems] = React.useState(loadItems());
-
   const [filter, setFilter] = React.useState("all");
 
-  const filteredItems = items.filter(item => {
-    if (filter === "done") {
-      return item.done
-    }
-    if (filter === "active") {
-      return !item.done
-    }
+  const filteredItems = React.useMemo(() => {
+    return items.filter(item => {
+      if (filter === "done") {
+        return item.done
+      }
+      if (filter === "active") {
+        return !item.done
+      }
 
-    return true
-  })
+      return true
+    })
+  }, [items, filter])
+  
 
   function handleInput(e) {
     setInputValue(e.target.value)

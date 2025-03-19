@@ -173,6 +173,29 @@ function useEffect(callback, deps) {
   wipFiber.effectHooks = effectHooks;
 }
 
+function useMemo(callback, deps) {
+  const memoHook = {
+    callback,
+    cachedValue: undefined,
+    deps
+  }
+
+  let cachedValue;
+  const oldHook = wipFiber.alternate?.memoHook;
+  const hasChanged = memoHook.deps === undefined || memoHook.deps.some((dep, i) => dep !== oldHook?.deps[i])
+  if (!hasChanged) {
+    console.log("useMemo: 未变化");
+    cachedValue = oldHook.cachedValue;
+  } else {
+    console.log("useMemo: 变化");
+    cachedValue = memoHook.callback();
+  }
+  memoHook.cachedValue = cachedValue;
+
+  wipFiber.memoHook = memoHook;
+  return cachedValue;
+}
+
 let stateHooks;
 let stateHookIndex;
 function useState(initial) {
@@ -373,6 +396,7 @@ requestIdleCallback(workLoop);
 
 const React = {
   useEffect,
+  useMemo,
   useState,
   render,
   createElement,
